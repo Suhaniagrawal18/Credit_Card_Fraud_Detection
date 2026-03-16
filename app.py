@@ -264,6 +264,10 @@ def show_prediction(detector):
     if uploaded_file is not None:
         try:
             df = pd.read_csv(uploaded_file)
+            # Prevent very large datasets crashing Streamlit
+            if len(df) > 5000:
+                st.warning("Dataset too large. Only first 5000 rows will be processed for stability.")
+                df = df.head(5000)
             st.write("### Data Preview")
             st.dataframe(df.head())
             
@@ -295,7 +299,7 @@ def show_prediction(detector):
                 safe_df = df[df['Predicted_Fraud'] == 0]
                 
                 # Show up to 100 rows, guaranteeing all fraud rows appear first
-                display_df = pd.concat([fraud_df, safe_df]).head(100)
+                display_df = pd.concat([fraud_df, safe_df]).head(50)
                 
                 st.write("**Processed Results (Showing all identified frauds first):**")
                 # Highlight fraud rows in red for emphasis (Streamlit styler)
@@ -304,7 +308,7 @@ def show_prediction(detector):
                         return ['background-color: rgba(239, 68, 68, 0.2)'] * len(row)
                     return [''] * len(row)
                 
-                st.dataframe(display_df[['Predicted_Fraud', 'Hybrid_Score'] + list(features.columns)].style.apply(highlight_fraud, axis=1))
+                st.dataframe(display_df[['Predicted_Fraud', 'Hybrid_Score'] + list(features.columns)].style.apply(highlight_fraud, axis=1),height=400)
                     
                 # Provide download link
                 csv = df.to_csv(index=False)
