@@ -264,14 +264,25 @@ def show_prediction(detector):
     if uploaded_file is not None:
         try:
             df = pd.read_csv(uploaded_file)
-            # Prevent very large datasets crashing Streamlit
-            if len(df) > 5000:
-                st.warning("Dataset too large. Only first 5000 rows will be processed for stability.")
-                df = df.head(5000)
-            st.write("### Data Preview")
-            st.dataframe(df.head())
+
+            chunk_size = 5000
+            total_rows = len(df)
             
-            # Assuming 'Class' column might be present but we only need features for prediction
+            chunk_index = st.number_input(
+                "Select dataset chunk",
+                min_value=0,
+                max_value=(total_rows // chunk_size),
+                value=0,
+                step=1
+            )
+            
+            start = chunk_index * chunk_size
+            end = start + chunk_size
+            df = df.iloc[start:end]
+            
+            st.info(f"Processing rows {start} to {min(end, total_rows)}")
+            
+            # 'Class' column present but we only need features for prediction
             features = df.drop(columns=['Class'], errors='ignore')
             
             if st.button("Run Batch Prediction"):
