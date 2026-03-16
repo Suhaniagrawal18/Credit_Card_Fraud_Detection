@@ -312,7 +312,7 @@ def show_prediction(detector):
                 href = f'<a href="data:file/csv;base64,{b64}" download="predictions.csv">📥 Download Results CSV</a>'
                 st.markdown(href, unsafe_allow_html=True)
 
-                tf.keras.backend.clear_session()
+                # tf.keras.backend.clear_session()
                     
         except Exception as e:
             st.error(f"Error processing file. If the file is extremely large, please note Streamlit's 200MB message limit. Error: {e}")
